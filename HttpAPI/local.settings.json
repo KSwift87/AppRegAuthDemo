@@ -2,14 +2,12 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
-  },
-  "AzureAd": {
-    "Instance": "https://login.microsoftonline.com/",
-    "Domain": "",
-    "TenantId": "",
-    "ClientId": "",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "AzureAd:Instance": "",
+    "AzureAd:Domain": "",
+    "AzureAd:TenantId": "",
+    "AzureAd:ClientId": "",
     // Ensure keys come from somewhere secure like KeyVault for PROD.
-    "ClientSecret": ""
+    "AzureAd:ClientSecret": ""
   }
 }

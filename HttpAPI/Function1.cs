@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HttpAPI;
 
-public class Function1
+public class Function1 : FunctionBase
 {
     private readonly ILogger<Function1> _logger;
 
@@ -15,9 +15,16 @@ public class Function1
     }
 
     [Function("Function1")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req,
+        FunctionContext ctx // Must pass this for auth as it's not available on HttpRequest by default in this version of Microsoft.AspNetCore.Http!
+    )
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-        return new OkObjectResult("Welcome to Azure Functions!");
+        var result = await ExecuteAsync(async () =>
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            return new OkObjectResult("Welcome to Azure Functions!");
+        }, ctx);
+
+        return result;
     }
 }

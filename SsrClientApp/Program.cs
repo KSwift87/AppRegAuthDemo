@@ -1,7 +1,9 @@
+using Azure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
+using SsrClientApp;
 using SsrClientApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,10 +24,21 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         options.SaveTokens = true;
 
         // Look at the audience claim before and after uncommenting the following.
-        //options.Scope.Add("api://client-id/Api.Execute");
+        options.Scope.Add("api://0a7a89df-ff2b-47d4-85ad-e07b3f2ccb95/Api.Execute");
     });
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<BearerTokenHandler>();
+
+// Configure IHttpClientFactory for API
+builder.Services.AddHttpClient("HttpAPI", httpClient =>
+{
+    httpClient.BaseAddress = new Uri("http://localhost:7161");
+    httpClient.Timeout = TimeSpan.FromSeconds(360);
+    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+})
+.AddHttpMessageHandler<BearerTokenHandler>();
 
 builder.Services.AddCascadingAuthenticationState();
 
@@ -62,6 +75,23 @@ app.MapGet("/authentication/logout", async (HttpContext context) =>
     await context.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
 
     return Results.SignOut(new AuthenticationProperties { RedirectUri = "/" }, new[] { OpenIdConnectDefaults.AuthenticationScheme });
+});
+
+// HttpAPI endpoints
+app.MapGet("/Function1", async (HttpContext context) =>
+{
+    using var httpClient = context.RequestServices
+        .GetRequiredService<IHttpClientFactory>()
+        .CreateClient("HttpAPI");
+
+    var response = await httpClient.GetAsync("/api/Function1");
+
+    // Ensure the request was successful
+    response.EnsureSuccessStatusCode();
+
+    // Read and return the content
+    var content = await response.Content.ReadAsStringAsync();
+    return Results.Ok(content);
 });
 
 // Debug endpoint to view tokens (remove in production)

@@ -24,7 +24,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         options.SaveTokens = true;
 
         // Look at the audience claim before and after uncommenting the following.
-        options.Scope.Add("api://0a7a89df-ff2b-47d4-85ad-e07b3f2ccb95/Api.Execute");
+        //options.Scope.Add("api://your-api-client-id/Api.Execute");
     });
 
 builder.Services.AddHttpContextAccessor();
